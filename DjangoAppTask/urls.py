@@ -10,7 +10,7 @@ router.register("cards", CardViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include(router.urls),name="cards_api"),
+    path("", include(router.urls), name="cards_api"),
 
     path("user/auth", include("rest_framework.urls")),
 

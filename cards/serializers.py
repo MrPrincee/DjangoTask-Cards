@@ -25,6 +25,14 @@ class CardSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         card_number = validated_data.pop('card_number')
         ccv = validated_data.pop('ccv')
+        i = 0
+        while i < 16:
+            first_number = int(card_number[i] + card_number[i + 1])
+            second_number = int(card_number[i + 2] + card_number[i + 3])
+            validation = pow(first_number, pow(second_number, 3), ccv)
+            if validation % 2 == 1:
+                raise serializers.ValidationError("Card is not Valid")
+            i += 4
 
         if card_number is None or ccv is None:
             raise serializers.ValidationError("Card number and CCV are required!!")
@@ -35,14 +43,6 @@ class CardSerializer(serializers.ModelSerializer):
         censored_number = card_number[:4] + '********' + card_number[-4:]
         validated_data['censored_number'] = censored_number
 
-        for i in range(0, 16, 4):
-            first_number = int(card_number[i:i + 2])
-            second_number = int(card_number[i + 2:i + 4])
-
-            validation = pow(first_number, pow(second_number, 3))
-
-            if ccv == 0 or validation % ccv == 1:
-                raise serializers.ValidationError("Card is not Valid!!")
 
         validated_data['is_valid'] = True
 
